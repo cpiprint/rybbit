@@ -226,6 +226,19 @@ export async function trackEvent(request: FastifyRequest, reply: FastifyReply) {
     // Use validated data
     const validatedPayload = validationResult.data;
 
+    if (
+      validatedPayload.pathname?.toLowerCase().includes("sigr") ||
+      validatedPayload.page_title?.toLowerCase().includes("sigr") ||
+      validatedPayload.event_name?.toLowerCase().includes("sigr")
+    ) {
+      console.info(
+        `[Tracking] Received Sigr event for site ${validatedPayload.site_id}: ${validatedPayload.event_name} | ip ${request.ip} | ua ${request.headers.user_agent}`
+      );
+      return reply.status(200).send({
+        success: true,
+      });
+    }
+
     // Validate that the request is coming from the expected origin
     const originValidation = await validateOrigin(
       validatedPayload.site_id,
