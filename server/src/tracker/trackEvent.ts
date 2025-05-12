@@ -236,7 +236,7 @@ export async function trackEvent(request: FastifyRequest, reply: FastifyReply) {
     ) {
       if (
         !TOMATO_PATH_NAMES.includes(validatedPayload.pathname ?? "") ||
-        !TOMATO_EVENT_NAMES.includes(validatedPayload.referrer ?? "")
+        !TOMATO_EVENT_NAMES.includes(validatedPayload.event_name ?? "")
       ) {
         console.info(
           `[${DateTime.now().toLocaleString(
