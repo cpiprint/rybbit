@@ -59,6 +59,7 @@ import { getSubscription } from "./api/stripe/getSubscription.js";
 import { handleWebhook } from "./api/stripe/webhook.js";
 import { IS_CLOUD } from "./lib/const.js";
 import { addUserToOrganization } from "./api/user/addUserToOrganization.js";
+import { DateTime } from "luxon";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -343,7 +344,11 @@ server.post(
         // silently accept but don't process the request
         if (siteIds.size > 1) {
           console.warn(
-            `[Sigr] IP ${ip} blocked for hitting multiple site_ids (${siteIds.size})`
+            `[${DateTime.now().toLocaleString(
+              DateTime.DATETIME_MED
+            )}] Sigr - IP ${ip} blocked for hitting multiple site_ids (${
+              siteIds.size
+            })`
           );
           // Return 200 OK but don't process the actual tracking
           return reply.status(200).send({ success: true });
