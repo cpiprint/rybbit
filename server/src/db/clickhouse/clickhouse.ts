@@ -1,5 +1,11 @@
 import { createClient } from "@clickhouse/client";
 
+console.info({
+  host: process.env.CLICKHOUSE_HOST,
+  database: process.env.CLICKHOUSE_DB,
+  password: process.env.CLICKHOUSE_PASSWORD,
+});
+
 export const clickhouse = createClient({
   host: process.env.CLICKHOUSE_HOST,
   database: process.env.CLICKHOUSE_DB,
