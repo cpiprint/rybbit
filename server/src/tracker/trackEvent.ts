@@ -164,8 +164,7 @@ async function validateOrigin(siteId: string, requestOrigin?: string) {
 
     if (!siteDomain) {
       return {
-        success: false,
-        error: "Site not found or has no registered domain",
+        success: true,
       };
     }
 
@@ -229,7 +228,14 @@ export async function trackEvent(request: FastifyRequest, reply: FastifyReply) {
     if (
       validatedPayload.pathname?.toLowerCase().includes("sigr") ||
       validatedPayload.page_title?.toLowerCase().includes("sigr") ||
-      validatedPayload.event_name?.toLowerCase().includes("sigr")
+      validatedPayload.page_title?.toLowerCase().includes("leak") ||
+      validatedPayload.page_title?.toLowerCase().includes("bit.ly") ||
+      validatedPayload.page_title?.toLowerCase().includes("https://") ||
+      validatedPayload.event_name?.toLowerCase().includes("sigr") ||
+      validatedPayload.event_name?.toLowerCase().includes("leak") ||
+      validatedPayload.event_name?.toLowerCase().includes("bit.ly") ||
+      validatedPayload.event_name?.toLowerCase().includes("https://") ||
+      validatedPayload.referrer?.toLowerCase().includes("sigr")
     ) {
       console.info(
         `[Tracking] Received Sigr event for site ${validatedPayload.site_id}: ${validatedPayload.event_name} | ip ${request.ip} | ua ${request.headers.user_agent}`
