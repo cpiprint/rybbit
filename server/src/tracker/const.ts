@@ -824,3 +824,123 @@ export function isMobileAppId(source: string): boolean {
   // Check for common app identifier patterns (com.company.app, etc.)
   return /^[a-z0-9_]+(\.([a-z0-9_]+))+$/.test(source);
 }
+
+export const TOMATO_PATH_NAMES = [
+  // Existing paths
+  "/stats/*/EU",
+  "/stats/*/NA",
+  "/stats/*/ASIA",
+  "/",
+
+  // Main pages
+  "/tanks",
+  "/tank-stats",
+  "/compare",
+  "/account",
+  "/blog",
+  "/login",
+  "/wg-login",
+  "/patreon",
+  "/contact",
+  "/error",
+  "/top-battles",
+
+  // Economic pages
+  "/economics/all",
+  "/economics/premium",
+  "/economics/standard",
+
+  // Tank performance pages
+  "/tank-performance/recent/EU",
+  "/tank-performance/recent/NA",
+  "/tank-performance/recent/ASIA",
+  "/tank-performance/EU/recent",
+  "/tank-performance/NA/recent",
+  "/tank-performance/ASIA/recent",
+  "/tank-performance/overall/EU",
+  "/tank-performance/overall/NA",
+  "/tank-performance/overall/ASIA",
+  "/tank-performance/onslaught/EU",
+  "/tank-performance/onslaught/NA",
+  "/tank-performance/onslaught/ASIA",
+
+  // Server stats pages
+  "/server-stats/EU",
+  "/server-stats/NA",
+  "/server-stats/ASIA",
+
+  // Stats related
+  "/stats/no-player",
+
+  // MoE pages
+  "/moe/EU",
+  "/moe/NA",
+  "/moe/ASIA",
+  "/moe",
+
+  // Mastery pages
+  "/mastery/EU",
+  "/mastery/NA",
+  "/mastery/ASIA",
+  "/mastery",
+
+  // Leaderboard pages
+  "/leaderboards/EU",
+  "/leaderboards/NA",
+  "/leaderboards/ASIA",
+  "/leaderboards",
+
+  // Meta insights
+  "/meta-insights/EU",
+  "/meta-insights/NA",
+  "/meta-insights/ASIA",
+
+  // Mod guides
+  "/mod-guide",
+  "/mod-guide/manual-install",
+  "/mod-guide/uninstall",
+
+  // Generalized clan stats paths
+  "/clan-stats/*/EU",
+  "/clan-stats/*/NA",
+  "/clan-stats/*/ASIA",
+
+  // Generalized WoWS paths
+  "/wows",
+  "/wows/stats/*/EU",
+  "/wows/stats/*/NA",
+  "/wows/stats/*/ASIA",
+  "/wows/stats/no-player",
+  "/wows/ship-stats/recent/EU",
+  "/wows/ship-stats/recent/NA",
+  "/wows/ship-stats/recent/ASIA",
+  "/wows/ship-stats/overall/EU",
+  "/wows/ship-stats/overall/NA",
+  "/wows/ship-stats/overall/ASIA",
+  "/wows/ship-stats/EU/EU",
+  "/wows/ship-stats/NA/EU",
+  "/wows/ship-stats/ASIA/EU",
+  "/wows/ship-stats/EU/recent",
+  "/wows/ship-stats/NA/recent",
+  "/wows/ship-stats/ASIA/recent",
+  "/wows/leaderboards/recent/all/EU",
+  "/wows/leaderboards/EU/recent/EU",
+  "/wows/leaderboards/EU/recent/all",
+
+  // Generalized maps paths
+  "/maps/EU",
+  "/maps/NA",
+  "/maps/ASIA",
+  "/maps/EU/*",
+  "/maps/NA/*",
+  "/maps/ASIA/*",
+];
+
+export const TOMATO_EVENT_NAMES = [
+  "page-visit",
+  "player-page-tab",
+  "player-page-action",
+  "battle-row-click",
+  "battle-result",
+  "tank-page-tab",
+];

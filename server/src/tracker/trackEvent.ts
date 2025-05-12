@@ -13,7 +13,11 @@ import { eq } from "drizzle-orm";
 import { getDeviceType } from "../utils.js";
 import { pageviewQueue } from "./pageviewQueue.js";
 import { siteConfig } from "../lib/siteConfig.js";
-import { DISABLE_ORIGIN_CHECK } from "./const.js";
+import {
+  DISABLE_ORIGIN_CHECK,
+  TOMATO_EVENT_NAMES,
+  TOMATO_PATH_NAMES,
+} from "./const.js";
 import { DateTime } from "luxon";
 
 // Define Zod schema for validation
@@ -227,27 +231,24 @@ export async function trackEvent(request: FastifyRequest, reply: FastifyReply) {
     const validatedPayload = validationResult.data;
 
     if (
-      validatedPayload.pathname?.toLowerCase().includes("sigr") ||
-      validatedPayload.page_title?.toLowerCase().includes("sigr") ||
-      validatedPayload.page_title?.toLowerCase().includes("leak") ||
-      validatedPayload.page_title?.toLowerCase().includes("bit.ly") ||
-      validatedPayload.page_title?.toLowerCase().includes("https://") ||
-      validatedPayload.event_name?.toLowerCase().includes("sigr") ||
-      validatedPayload.event_name?.toLowerCase().includes("leak") ||
-      validatedPayload.event_name?.toLowerCase().includes("bit.ly") ||
-      validatedPayload.event_name?.toLowerCase().includes("https://") ||
-      validatedPayload.referrer?.toLowerCase().includes("sigr")
+      validatedPayload.site_id === "1" &&
+      validatedPayload.hostname?.includes("tomato.gg")
     ) {
-      console.info(
-        `[${DateTime.now().toLocaleString(DateTime.DATETIME_MED)}] Sigr - ${
-          validatedPayload.site_id
-        }: ${validatedPayload.event_name} | ip ${request.ip} | ua ${
-          request.headers.user_agent
-        }`
-      );
-      return reply.status(200).send({
-        success: true,
-      });
+      if (
+        !TOMATO_PATH_NAMES.includes(validatedPayload.pathname ?? "") ||
+        !TOMATO_EVENT_NAMES.includes(validatedPayload.referrer ?? "")
+      ) {
+        console.info(
+          `[${DateTime.now().toLocaleString(
+            DateTime.DATETIME_MED
+          )}] spam blocked - ${validatedPayload.site_id}: ${
+            validatedPayload.event_name
+          } | ip ${request.ip} | ua ${request.headers.user_agent}`
+        );
+        return reply.status(200).send({
+          success: true,
+        });
+      }
     }
 
     // Validate that the request is coming from the expected origin
