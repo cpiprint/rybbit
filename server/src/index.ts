@@ -305,11 +305,11 @@ if (IS_CLOUD) {
   server.post("/stripe/create-checkout-session", createCheckoutSession);
   server.post("/stripe/create-portal-session", createPortalSession);
   server.get("/stripe/subscription", getSubscription);
-  server.post(
-    "/api/stripe/webhook",
-    { config: { rawBody: true } },
-    handleWebhook
-  ); // Use rawBody parser config for webhook
+  // server.post(
+  //   "/api/stripe/webhook",
+  //   { config: { rawBody: true } },
+  //   handleWebhook
+  // ); // Use rawBody parser config for webhook
 }
 
 server.post(
