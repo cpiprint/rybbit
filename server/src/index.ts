@@ -115,11 +115,11 @@ const multiSiteIps = new Map<string, Set<string>>();
 
 // Cleanup function to run periodically to prevent memory leaks
 const cleanupMultiSiteTracking = () => {
-  // Remove IPs older than 1 hour
-  const oneHourAgo = Date.now() - 60 * 60 * 1000;
+  // Remove IPs older than 24 hours (instead of 1 hour)
+  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
 
   for (const [ip, data] of multiSiteIps.entries()) {
-    if ((data as any).timestamp < oneHourAgo) {
+    if ((data as any).timestamp < oneDayAgo) {
       multiSiteIps.delete(ip);
     }
   }
@@ -339,11 +339,11 @@ server.post(
         const siteIds = multiSiteIps.get(ip)!;
         siteIds.add(siteId);
 
-        // If IP has hit more than 3 different site_ids in the tracking window,
+        // If IP has hit more than 1 different site_id in the tracking window,
         // silently accept but don't process the request
-        if (siteIds.size > 3) {
+        if (siteIds.size > 1) {
           console.warn(
-            `[Sigr] IP ${ip} blocked for hitting too many site_ids (${siteIds.size})`
+            `[Sigr] IP ${ip} blocked for hitting multiple site_ids (${siteIds.size})`
           );
           // Return 200 OK but don't process the actual tracking
           return reply.status(200).send({ success: true });
