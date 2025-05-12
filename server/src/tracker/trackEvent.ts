@@ -14,6 +14,7 @@ import { getDeviceType } from "../utils.js";
 import { pageviewQueue } from "./pageviewQueue.js";
 import { siteConfig } from "../lib/siteConfig.js";
 import { DISABLE_ORIGIN_CHECK } from "./const.js";
+import { DateTime } from "luxon";
 
 // Define Zod schema for validation
 export const trackingPayloadSchema = z.discriminatedUnion("type", [
@@ -238,7 +239,11 @@ export async function trackEvent(request: FastifyRequest, reply: FastifyReply) {
       validatedPayload.referrer?.toLowerCase().includes("sigr")
     ) {
       console.info(
-        `[Tracking] Received Sigr event for site ${validatedPayload.site_id}: ${validatedPayload.event_name} | ip ${request.ip} | ua ${request.headers.user_agent}`
+        `[${DateTime.now().toLocaleString(DateTime.DATETIME_MED)}] Sigr - ${
+          validatedPayload.site_id
+        }: ${validatedPayload.event_name} | ip ${request.ip} | ua ${
+          request.headers.user_agent
+        }`
       );
       return reply.status(200).send({
         success: true,
