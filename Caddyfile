@@ -5,12 +5,24 @@
     encode zstd gzip
 
     handle_path /api/* {
+        # Forward the real client IP and other proxy information
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+
         reverse_proxy backend:3001
     }
 
 
     # Proxy all other requests to the client service
     handle {
+        # Forward the real client IP and other proxy information
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+
         reverse_proxy client:3002
     }
 

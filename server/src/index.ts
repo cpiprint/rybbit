@@ -1,5 +1,6 @@
 import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
+import rateLimit from "@fastify/rate-limit";
 import { toNodeHandler } from "better-auth/node";
 import Fastify from "fastify";
 import { dirname, join } from "path";
@@ -71,6 +72,61 @@ const server = Fastify({
   maxParamLength: 1500,
   trustProxy: true,
 });
+
+if (IS_CLOUD) {
+  // Register rate limit plugin globally with moderate limits
+  server.register(rateLimit, {
+    max: 100, // Allow 100 requests per timeWindow
+    timeWindow: "1 minute", // Per minute
+    allowList: (req) => {
+      const url = req.raw.url || "";
+      return (
+        url.startsWith("/api/auth") ||
+        url.startsWith("/auth") ||
+        req.ip === "127.0.0.1" ||
+        req.ip === "::1"
+      );
+    },
+  });
+
+  server.register(rateLimit, {
+    prefix: "/track-limiter",
+    max: 15, // Lower limit for tracking requests (per IP per site_id)
+    timeWindow: "1 minute",
+    keyGenerator: (req) => {
+      // Extract site_id from the tracking request body
+      const body = req.body as any;
+      const siteId = body?.site_id || "unknown";
+      // Create a compound key of IP address + site_id
+      return `${req.ip}-${siteId}`;
+    },
+    errorResponseBuilder: () => {
+      return {
+        statusCode: 200,
+        error: "",
+        message: "OK",
+      };
+    },
+  });
+}
+
+// Store to track IPs hitting multiple site_ids
+const multiSiteIps = new Map<string, Set<string>>();
+
+// Cleanup function to run periodically to prevent memory leaks
+const cleanupMultiSiteTracking = () => {
+  // Remove IPs older than 1 hour
+  const oneHourAgo = Date.now() - 60 * 60 * 1000;
+
+  for (const [ip, data] of multiSiteIps.entries()) {
+    if ((data as any).timestamp < oneHourAgo) {
+      multiSiteIps.delete(ip);
+    }
+  }
+};
+
+// Run cleanup every 15 minutes
+setInterval(cleanupMultiSiteTracking, 15 * 60 * 1000);
 
 server.register(cors, {
   origin: (origin, callback) => {
@@ -256,7 +312,47 @@ if (IS_CLOUD) {
   ); // Use rawBody parser config for webhook
 }
 
-server.post("/track", trackEvent);
+server.post(
+  "/track",
+  {
+    config: {
+      rateLimit: {
+        keyGenerator: function (req) {
+          // Use the special track-limiter rate limiter
+          return `/track-limiter${req.ip}`;
+        },
+      },
+    },
+    preHandler: async (request, reply) => {
+      // Validate the request body
+      const body = request.body as any;
+      if (!body || !body.site_id) return;
+
+      const ip = request.ip;
+      const siteId = body.site_id;
+
+      // Check if this IP has accessed multiple site_ids
+      if (!multiSiteIps.has(ip)) {
+        multiSiteIps.set(ip, new Set([siteId]));
+        (multiSiteIps.get(ip) as any).timestamp = Date.now();
+      } else {
+        const siteIds = multiSiteIps.get(ip)!;
+        siteIds.add(siteId);
+
+        // If IP has hit more than 3 different site_ids in the tracking window,
+        // silently accept but don't process the request
+        if (siteIds.size > 3) {
+          console.warn(
+            `[Sigr] IP ${ip} blocked for hitting too many site_ids (${siteIds.size})`
+          );
+          // Return 200 OK but don't process the actual tracking
+          return reply.status(200).send({ success: true });
+        }
+      }
+    },
+  },
+  trackEvent
+);
 
 const start = async () => {
   try {
