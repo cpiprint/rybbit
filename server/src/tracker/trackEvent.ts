@@ -234,6 +234,7 @@ export async function trackEvent(request: FastifyRequest, reply: FastifyReply) {
       validatedPayload.site_id === "1" &&
       validatedPayload.hostname?.includes("tomato.gg")
     ) {
+      console.info(validatedPayload.pathname, validatedPayload.event_name);
       if (
         !TOMATO_PATH_NAMES.includes(validatedPayload.pathname ?? "") ||
         !TOMATO_EVENT_NAMES.includes(validatedPayload.event_name ?? "")
