@@ -355,9 +355,9 @@ server.post(
         const siteIds = multiSiteIps.get(ip)!;
         siteIds.add(siteId);
 
-        // If IP has hit more than 1 different site_id in the tracking window,
+        // If IP has hit more than 3 different site_id in the tracking window,
         // silently accept but don't process the request
-        if (siteIds.size > 1) {
+        if (siteIds.size > 3) {
           console.warn(
             `[${DateTime.now().toLocaleString(
               DateTime.DATETIME_MED
