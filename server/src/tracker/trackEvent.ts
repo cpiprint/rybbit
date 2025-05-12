@@ -252,20 +252,20 @@ export async function trackEvent(request: FastifyRequest, reply: FastifyReply) {
     }
 
     // Validate that the request is coming from the expected origin
-    const originValidation = await validateOrigin(
-      validatedPayload.site_id,
-      request.headers.origin as string
-    );
+    // const originValidation = await validateOrigin(
+    //   validatedPayload.site_id,
+    //   request.headers.origin as string
+    // );
 
-    if (!originValidation.success) {
-      console.warn(
-        `[Tracking] Request rejected for site ${validatedPayload.site_id}: ${originValidation.error}`
-      );
-      return reply.status(403).send({
-        success: false,
-        error: originValidation.error,
-      });
-    }
+    // if (!originValidation.success) {
+    //   console.warn(
+    //     `[Tracking] Request rejected for site ${validatedPayload.site_id}: ${originValidation.error}`
+    //   );
+    //   return reply.status(403).send({
+    //     success: false,
+    //     error: originValidation.error,
+    //   });
+    // }
 
     // Check if the site has exceeded its monthly limit
     if (isSiteOverLimit(validatedPayload.site_id)) {
