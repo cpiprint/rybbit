@@ -49,6 +49,7 @@ import { allowList, loadAllowedDomains } from "./lib/allowedDomains.js";
 import { mapHeaders } from "./lib/auth-utils.js";
 import { auth } from "./lib/auth.js";
 import { siteConfig } from "./lib/siteConfig.js";
+import { isKnownCrawler } from "./lib/security.js";
 import { trackEvent } from "./tracker/trackEvent.js";
 import { extractSiteId, isSitePublic, normalizeOrigin } from "./utils.js";
 
@@ -313,6 +314,7 @@ if (IS_CLOUD) {
   // ); // Use rawBody parser config for webhook
 }
 
+// Modified /track endpoint preHandler
 server.post(
   "/track",
   {
@@ -331,6 +333,19 @@ server.post(
 
       const ip = request.ip;
       const siteId = body.site_id;
+
+      // Check if this is a known web crawler by IP and User-Agent
+      const userAgent = request.headers["user-agent"] as string | undefined;
+
+      if (isKnownCrawler(ip, userAgent)) {
+        // Log crawler activity but don't block them
+        console.info(
+          `[${DateTime.now().toLocaleString(
+            DateTime.DATETIME_MED
+          )}] Crawler detected - IP ${ip}, UA: ${userAgent || "undefined"}`
+        );
+        return; // Allow crawler to proceed
+      }
 
       // Check if this IP has accessed multiple site_ids
       if (!multiSiteIps.has(ip)) {
